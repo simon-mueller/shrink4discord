@@ -1,0 +1,43 @@
+#!/bin/bash
+# License: GPLv2
+# Author: "Simon Müller" <git@simon-mueller.de>
+# Dependencies: ffmpeg
+#
+# Script to shrink the filesize of a video to < 8MB
+# in order to upload it into Discord. Unfortunately this
+# closed source application will only let upload files below this size.
+#
+# You can change the threshold in kb for the filesize here.
+THRESHOLD=8000
+# You can change the factor the quality will decrease here,
+# results in faster results/fewer rounds but may decrease quality too much
+GROWFACTOR=1
+
+# stop on ctrl+c
+trap "echo 'SIGINT received, aborting...' && exit" INT
+
+if [[ -z $@ ]]; then
+	echo -e "No argument given!\nUsage: discord_vid <videofile> [quality, default=28]"
+	exit 255
+fi
+
+OUTFILE="${1%.*}_.${1##*.}"
+QUAL=${2}
+
+if [[ -z ${QUAL} ]]; then
+	QUAL=28
+fi
+
+VIDSIZE=$(du -s "${1}"|awk '{ print $1 }')
+echo "$VIDSIZE - ${1}"
+
+while [[ "${VIDSIZE}" -gt "${THRESHOLD}" ]]; do
+	echo "Shrinking size with ffmpeg..."
+	ffmpeg -loglevel "warning" -y -i "${1}" -vcodec libx264 -crf ${QUAL} "${OUTFILE}"
+	VIDSIZE=$(du -s "${OUTFILE}"|awk '{ print $1 }')
+	QUAL=$(($QUAL+$GROWFACTOR))
+	echo "New size: ${VIDSIZE} - new qual: ${QUAL}"
+done
+
+echo "Finished processing ${1}, final size: ${VIDSIZE}. Removing original file..."
+rm -v "${1}"
