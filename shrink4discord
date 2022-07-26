@@ -17,7 +17,7 @@ GROWFACTOR=1
 trap "echo 'SIGINT received, aborting...' && exit" INT
 
 if [[ -z $@ ]]; then
-	echo -e "No argument given!\nUsage: discord_vid <videofile> [quality, default=28]"
+	echo -e "No argument given!\nUsage: shrink4discord <videofile> [quality, default=28]"
 	exit 255
 fi
 
