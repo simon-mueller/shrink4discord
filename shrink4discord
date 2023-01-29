@@ -13,6 +13,8 @@ THRESHOLD=8000
 # results in faster results/fewer rounds but may decrease quality too much
 GROWFACTOR=1
 
+PROCESSED=0
+
 # stop on ctrl+c
 trap "echo 'SIGINT received, aborting...' && exit" INT
 
@@ -32,12 +34,17 @@ VIDSIZE=$(du -s "${1}"|awk '{ print $1 }')
 echo "$VIDSIZE - ${1}"
 
 while [[ "${VIDSIZE}" -gt "${THRESHOLD}" ]]; do
-	echo "Shrinking size with ffmpeg..."
+	echo "Shrinking size ${VIDSIZE} with ffmpeg (quality: ${QUAL})..."
 	ffmpeg -loglevel "warning" -y -i "${1}" -vcodec libx264 -crf ${QUAL} "${OUTFILE}"
 	VIDSIZE=$(du -s "${OUTFILE}"|awk '{ print $1 }')
 	QUAL=$(($QUAL+$GROWFACTOR))
-	echo "New size: ${VIDSIZE} - new qual: ${QUAL}"
+	PROCESSED=1
 done
 
-echo "Finished processing ${1}, final size: ${VIDSIZE}. Removing original file..."
-rm -v "${1}"
+if [[ $PROCESSED -eq 1 ]]; then
+	echo "Finished processing ${1}, final size: ${VIDSIZE}. Removing original file..."
+	rm -v "${1}"
+	exit 0
+fi
+echo "File smaller than 8MB, exiting!"
+exit 1
