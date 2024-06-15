@@ -40,15 +40,15 @@ VIDINFO=$(file -sL "${INFILE}")
 echo "$VIDSIZE - ${VIDINFO}"
 
 while [[ "${VIDSIZE}" -gt "${THRESHOLD}" ]]; do
-	echo "Shrinking size ${VIDSIZE} with ffmpeg (quality: ${QUAL})..."
+	echo "Shrinking ${VIDSIZE} KB file with ffmpeg (quality: ${QUAL})..."
 	ffmpeg -loglevel "warning" -y -i "${INFILE}" -vcodec libx264 -crf ${QUAL} "${OUTFILE}"
-	VIDSIZE=$(du -s "${INFILE}"|awk '{ print $1 }')
+	VIDSIZE=$(du -s "${OUTFILE}"|awk '{ print $1 }')
 	QUAL=$(($QUAL+$GROWFACTOR))
 	PROCESSED=1
 done
 
 if [[ $PROCESSED -eq 1 ]]; then
-	echo "Finished processing ${INFILE}, final size: ${VIDSIZE}. Removing original file..."
+	echo "Finished processing ${INFILE}, final size: ${VIDSIZE} KB. Removing original file..."
 	rm -v "${INFILE}"
 	exit 0
 fi
