@@ -48,8 +48,9 @@ while [[ "${VIDSIZE}" -gt "${THRESHOLD}" ]]; do
 done
 
 if [[ $PROCESSED -eq 1 ]]; then
-	echo "Finished processing ${INFILE}, final size: ${VIDSIZE} KB. Removing original file..."
+	echo "Finished processing ${INFILE}, final size: ${VIDSIZE} KB. Replacing original file..."
 	rm -v "${INFILE}"
+	mv "${OUTFILE}" "${INFILE}"
 	exit 0
 fi
 echo "File smaller than $THRESHOLD KB, exiting!"
