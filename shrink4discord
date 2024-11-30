@@ -8,7 +8,7 @@
 # closed source application will only let upload files below this size.
 #
 # You can change the threshold in kb for the filesize here.
-THRESHOLD=25000
+THRESHOLD=10000
 # You can change the factor the quality will decrease here,
 # results in faster results/fewer rounds but may decrease quality too much
 GROWFACTOR=1
